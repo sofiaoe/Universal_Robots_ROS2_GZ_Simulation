@@ -10,7 +10,7 @@ option(
   OFF
 )
 
-install(DIRECTORY config launch urdf
+install(DIRECTORY config launch urdf meshes
   DESTINATION share/${PROJECT_NAME}
 )
 
