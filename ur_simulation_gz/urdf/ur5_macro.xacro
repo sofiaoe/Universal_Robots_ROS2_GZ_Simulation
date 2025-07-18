@@ -58,7 +58,7 @@
 
     <xacro:if value="${generate_ros2_control_tag}">
       <!-- ros2 control include -->
-      <xacro:include filename="$(find ur_simulation_gz)/urdf/ur_gz.ros2_control.xacro" />
+      <xacro:include filename="$(find ur_simulation_gz)/urdf/ur5_ros2_control.xacro" />
       <!-- ros2 control instance -->
       <xacro:ur_ros2_control
         name="${name}"

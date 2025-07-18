@@ -1,375 +1,330 @@
 <?xml version="1.0"?>
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:macro name="ur_ros2_control" params="
-    name
-    use_fake_hardware:=false fake_sensor_commands:=false
-    sim_gazebo:=false
-    sim_ignition:=false
-    headless_mode:=false
-    initial_positions:=${xacro.load_yaml(initial_positions_file)}
-    use_tool_communication:=false
-    script_filename output_recipe_filename
-    input_recipe_filename tf_prefix
-    hash_kinematics robot_ip
-    tool_voltage:=0 tool_parity:=0 tool_baud_rate:=115200 tool_stop_bits:=1
-    tool_rx_idle_chars:=1.5 tool_tx_idle_chars:=3.5 tool_device_name:=/tmp/ttyUR tool_tcp_port:=54321
-    reverse_port:=50001
-    script_sender_port:=50002
-    reverse_ip:=0.0.0.0
-    script_command_port:=50004
-    trajectory_port:=50003
-    non_blocking_read:=true
-    keep_alive_count:=2
-    ">
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="ur">
+   <!-- robot name parameter -->
+   <xacro:arg name="name" default="ur"/>
+   <!-- import main macro -->
+   <xacro:include filename="$(find ur_simulation_gz)/urdf/ur5_macro.xacro"/>
 
-    <ros2_control name="${name}" type="system">
-      <hardware>
-        <xacro:if value="${sim_gazebo}">
-          <plugin>gazebo_ros2_control/GazeboSystem</plugin>
-        </xacro:if>
-        <xacro:if value="${sim_ignition}">
-          <plugin>ign_ros2_control/IgnitionSystem</plugin>
-        </xacro:if>
-        <xacro:if value="${use_fake_hardware}">
-          <plugin>mock_components/GenericSystem</plugin>
-          <param name="fake_sensor_commands">${fake_sensor_commands}</param>
-          <param name="state_following_offset">0.0</param>
-          <param name="calculate_dynamics">true</param>
-        </xacro:if>
-        <xacro:unless value="${use_fake_hardware or sim_gazebo or sim_ignition}">
-          <plugin>ur_robot_driver/URPositionHardwareInterface</plugin>
-          <param name="robot_ip">${robot_ip}</param>
-          <param name="script_filename">${script_filename}</param>
-          <param name="output_recipe_filename">${output_recipe_filename}</param>
-          <param name="input_recipe_filename">${input_recipe_filename}</param>
-          <param name="headless_mode">${headless_mode}</param>
-          <param name="reverse_port">${reverse_port}</param>
-          <param name="script_sender_port">${script_sender_port}</param>
-          <param name="reverse_ip">${reverse_ip}</param>
-          <param name="script_command_port">${script_command_port}</param>
-          <param name="trajectory_port">${trajectory_port}</param>
-          <param name="tf_prefix">${tf_prefix}</param>
-          <param name="non_blocking_read">${non_blocking_read}</param>
-          <param name="servoj_gain">2000</param>
-          <param name="servoj_lookahead_time">0.03</param>
-          <param name="use_tool_communication">${use_tool_communication}</param>
-          <param name="kinematics/hash">${hash_kinematics}</param>
-          <param name="tool_voltage">${tool_voltage}</param>
-          <param name="tool_parity">${tool_parity}</param>
-          <param name="tool_baud_rate">${tool_baud_rate}</param>
-          <param name="tool_stop_bits">${tool_stop_bits}</param>
-          <param name="tool_rx_idle_chars">${tool_rx_idle_chars}</param>
-          <param name="tool_tx_idle_chars">${tool_tx_idle_chars}</param>
-          <param name="tool_device_name">${tool_device_name}</param>
-          <param name="tool_tcp_port">${tool_tcp_port}</param>
-          <param name="keep_alive_count">${keep_alive_count}</param>
-        </xacro:unless>
-      </hardware>
-      <joint name="${tf_prefix}shoulder_pan_joint">
-        <command_interface name="position"/>
-        <command_interface name="velocity"/>
-        <state_interface name="position">
-          <!-- initial position for the FakeSystem and simulation -->
-          <param name="initial_value">${initial_positions['shoulder_pan_joint']}</param>
-        </state_interface>
-        <state_interface name="velocity"/>
-        <state_interface name="effort"/>
-      </joint>
-      <joint name="${tf_prefix}shoulder_lift_joint">
-        <command_interface name="position"/>
-        <command_interface name="velocity"/>
-        <state_interface name="position">
-          <!-- initial position for the FakeSystem and simulation -->
-          <param name="initial_value">${initial_positions['shoulder_lift_joint']}</param>
-        </state_interface>
-        <state_interface name="velocity"/>
-        <state_interface name="effort"/>
-      </joint>
-      <joint name="${tf_prefix}elbow_joint">
-        <command_interface name="position"/>
-        <command_interface name="velocity"/>
-        <state_interface name="position">
-          <!-- initial position for the FakeSystem and simulation -->
-          <param name="initial_value">${initial_positions['elbow_joint']}</param>
-        </state_interface>
-        <state_interface name="velocity"/>
-        <state_interface name="effort"/>
-      </joint>
-      <joint name="${tf_prefix}wrist_1_joint">
-        <command_interface name="position"/>
-        <command_interface name="velocity"/>
-        <state_interface name="position">
-          <!-- initial position for the FakeSystem and simulation -->
-          <param name="initial_value">${initial_positions['wrist_1_joint']}</param>
-        </state_interface>
-        <state_interface name="velocity"/>
-        <state_interface name="effort"/>
-      </joint>
-      <joint name="${tf_prefix}wrist_2_joint">
-        <command_interface name="position"/>
-        <command_interface name="velocity"/>
-        <state_interface name="position">
-          <!-- initial position for the FakeSystem and simulation -->
-          <param name="initial_value">${initial_positions['wrist_2_joint']}</param>
-        </state_interface>
-        <state_interface name="velocity"/>
-        <state_interface name="effort"/>
-      </joint>
-      <joint name="${tf_prefix}wrist_3_joint">
-        <command_interface name="position"/>
-        <command_interface name="velocity"/>
-        <state_interface name="position">
-          <!-- initial position for the FakeSystem and simulation -->
-          <param name="initial_value">${initial_positions['wrist_3_joint']}</param>
-        </state_interface>
-        <state_interface name="velocity"/>
-        <state_interface name="effort"/>
-      </joint>
+   <!-- possible 'ur_type' values: ur3, ur3e, ur5, ur5e, ur7e, ur10, ur10e, ur12e, ur16e, ur15, ur20, ur30 -->
+   <!-- the default value should raise an error in case this was called without defining the type -->
+   <xacro:arg name="ur_type" default="ur5"/>
 
-      <xacro:unless value="${sim_gazebo or sim_ignition}">
-        <sensor name="${tf_prefix}tcp_fts_sensor">
-          <state_interface name="force.x"/>
-          <state_interface name="force.y"/>
-          <state_interface name="force.z"/>
-          <state_interface name="torque.x"/>
-          <state_interface name="torque.y"/>
-          <state_interface name="torque.z"/>
-        </sensor>
+   <!-- parameters -->
+   <xacro:arg name="tf_prefix" default="" />
+   <xacro:arg name="joint_limit_params" default="$(find ur_description)/config/$(arg ur_type)/joint_limits.yaml"/>
+   <xacro:arg name="kinematics_params" default="$(find ur_description)/config/$(arg ur_type)/default_kinematics.yaml"/>
+   <xacro:arg name="physical_params" default="$(find ur_description)/config/$(arg ur_type)/physical_parameters.yaml"/>
+   <xacro:arg name="visual_params" default="$(find ur_description)/config/$(arg ur_type)/visual_parameters.yaml"/>
+   <xacro:arg name="transmission_hw_interface" default=""/>
+   <xacro:arg name="safety_limits" default="false"/>
+   <xacro:arg name="safety_pos_margin" default="0.15"/>
+   <xacro:arg name="safety_k_position" default="20"/>
+   <!-- ros2_control related parameters -->
+   <xacro:arg name="headless_mode" default="false" />
+   <xacro:arg name="robot_ip" default="0.0.0.0" />
+   <xacro:arg name="script_filename" default=""/>
+   <xacro:arg name="output_recipe_filename" default=""/>
+   <xacro:arg name="input_recipe_filename" default=""/>
+   <xacro:arg name="reverse_ip" default="0.0.0.0"/>
+   <xacro:arg name="script_command_port" default="50004"/>
+   <xacro:arg name="reverse_port" default="50001"/>
+   <xacro:arg name="script_sender_port" default="50002"/>
+   <xacro:arg name="trajectory_port" default="50003"/>
+   <!--   tool communication related parameters-->
+   <xacro:arg name="use_tool_communication" default="false" />
+   <xacro:arg name="tool_voltage" default="0" />
+   <xacro:arg name="tool_parity" default="0" />
+   <xacro:arg name="tool_baud_rate" default="115200" />
+   <xacro:arg name="tool_stop_bits" default="1" />
+   <xacro:arg name="tool_rx_idle_chars" default="1.5" />
+   <xacro:arg name="tool_tx_idle_chars" default="3.5" />
+   <xacro:arg name="tool_device_name" default="/tmp/ttyUR" />
+   <xacro:arg name="tool_tcp_port" default="54321" />
 
-        <sensor name="${tf_prefix}tcp_pose">
-          <state_interface name="position.x"/>
-          <state_interface name="position.y"/>
-          <state_interface name="position.z"/>
-          <state_interface name="orientation.x"/>
-          <state_interface name="orientation.y"/>
-          <state_interface name="orientation.z"/>
-          <state_interface name="orientation.w"/>
-        </sensor>
+     <!-- Simulation parameters -->
+   <xacro:arg name="use_fake_hardware" default="false" />
+   <xacro:arg name="fake_sensor_commands" default="false" />
+   <xacro:arg name="sim_gazebo" default="true" />
+   <xacro:arg name="sim_ignition" default="false" />
+   <xacro:arg name="simulation_controllers" default="$(find ur_simulation_gz)/config/ur5_controllers_gripper.yaml" />
 
-        <!-- NOTE The following are joints used only for testing with fake hardware and will change in the future -->
-        <gpio name="${tf_prefix}speed_scaling">
-          <state_interface name="speed_scaling_factor"/>
-          <param name="initial_speed_scaling_factor">1</param>
-          <command_interface name="target_speed_fraction_cmd"/>
-          <command_interface name="target_speed_fraction_async_success"/>
-        </gpio>
+   <!-- initial position for simulations (Fake Hardware, Gazebo, Ignition) -->
+   <xacro:arg name="initial_positions_file" default="$(find ur_simulation_gz)/config/initial_positions.yaml"/>
 
-        <gpio name="${tf_prefix}gpio">
-          <command_interface name="standard_digital_output_cmd_0"/>
-          <command_interface name="standard_digital_output_cmd_1"/>
-          <command_interface name="standard_digital_output_cmd_2"/>
-          <command_interface name="standard_digital_output_cmd_3"/>
-          <command_interface name="standard_digital_output_cmd_4"/>
-          <command_interface name="standard_digital_output_cmd_5"/>
-          <command_interface name="standard_digital_output_cmd_6"/>
-          <command_interface name="standard_digital_output_cmd_7"/>
-          <command_interface name="standard_digital_output_cmd_8"/>
-          <command_interface name="standard_digital_output_cmd_9"/>
-          <command_interface name="standard_digital_output_cmd_10"/>
-          <command_interface name="standard_digital_output_cmd_11"/>
-          <command_interface name="standard_digital_output_cmd_12"/>
-          <command_interface name="standard_digital_output_cmd_13"/>
-          <command_interface name="standard_digital_output_cmd_14"/>
-          <command_interface name="standard_digital_output_cmd_15"/>
-          <command_interface name="standard_digital_output_cmd_16"/>
-          <command_interface name="standard_digital_output_cmd_17"/>
+   <!-- convert to property to use substitution in function -->
+   <xacro:property name="initial_positions_file" default="$(arg initial_positions_file)"/>
+   <xacro:property name="is_sim_gazebo" value="$(arg sim_gazebo)"/>
+   <xacro:property name="is_sim_ignition" value="$(arg sim_ignition)"/>
 
-          <command_interface name="standard_analog_output_cmd_0"/>
-          <command_interface name="standard_analog_output_cmd_1"/>
-          <command_interface name="analog_output_domain_cmd"/>
+   <!-- create link fixed to the "world" -->
+   <link name="world" />
 
-          <command_interface name="tool_voltage_cmd"/>
+   <joint name="world_to_bot_base" type="fixed">
+    <parent link="world"/>
+    <child link="bot_base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
 
-          <command_interface name="io_async_success"/>
+   <xacro:if value="${is_sim_gazebo or is_sim_ignition}">
+     <link name="ground_plane">
+       <visual>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+           <box size="5 5 0"/>
+         </geometry>
+         <material name="ground_white">
+           <color rgba="1 1 1 0.5"/>
+         </material>
+       </visual>
+       <collision>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+           <box size="5 5 0"/>
+         </geometry>
+       </collision>
+     </link>
 
-          <state_interface name="digital_output_0"/>
-          <state_interface name="digital_output_1"/>
-          <state_interface name="digital_output_2"/>
-          <state_interface name="digital_output_3"/>
-          <state_interface name="digital_output_4"/>
-          <state_interface name="digital_output_5"/>
-          <state_interface name="digital_output_6"/>
-          <state_interface name="digital_output_7"/>
-          <state_interface name="digital_output_8"/>
-          <state_interface name="digital_output_9"/>
-          <state_interface name="digital_output_10"/>
-          <state_interface name="digital_output_11"/>
-          <state_interface name="digital_output_12"/>
-          <state_interface name="digital_output_13"/>
-          <state_interface name="digital_output_14"/>
-          <state_interface name="digital_output_15"/>
-          <state_interface name="digital_output_16"/>
-          <state_interface name="digital_output_17"/>
+     <joint name="ground_plane_joint" type="fixed">
+       <origin xyz="0 0 -0.01" rpy="0 0 0"/>
+       <parent link="world"/>
+       <child link="ground_plane"/>
+     </joint>
+   </xacro:if>
 
-          <state_interface name="digital_input_0"/>
-          <state_interface name="digital_input_1"/>
-          <state_interface name="digital_input_2"/>
-          <state_interface name="digital_input_3"/>
-          <state_interface name="digital_input_4"/>
-          <state_interface name="digital_input_5"/>
-          <state_interface name="digital_input_6"/>
-          <state_interface name="digital_input_7"/>
-          <state_interface name="digital_input_8"/>
-          <state_interface name="digital_input_9"/>
-          <state_interface name="digital_input_10"/>
-          <state_interface name="digital_input_11"/>
-          <state_interface name="digital_input_12"/>
-          <state_interface name="digital_input_13"/>
-          <state_interface name="digital_input_14"/>
-          <state_interface name="digital_input_15"/>
-          <state_interface name="digital_input_16"/>
-          <state_interface name="digital_input_17"/>
+   <!-- arm -->
+   <xacro:ur_robot
+     name="$(arg name)"
+     tf_prefix="$(arg tf_prefix)"
+     parent="world"
+     joint_limits_parameters_file="$(arg joint_limit_params)"
+     kinematics_parameters_file="$(arg kinematics_params)"
+     physical_parameters_file="$(arg physical_params)"
+     visual_parameters_file="$(arg visual_params)"
+     transmission_hw_interface="$(arg transmission_hw_interface)"
+     safety_limits="$(arg safety_limits)"
+     safety_pos_margin="$(arg safety_pos_margin)"
+     safety_k_position="$(arg safety_k_position)"
+     use_fake_hardware="$(arg use_fake_hardware)"
+     fake_sensor_commands="$(arg fake_sensor_commands)"
+     sim_gazebo="$(arg sim_gazebo)"
+     sim_ignition="$(arg sim_ignition)"
+     headless_mode="$(arg headless_mode)"
+     initial_positions="${xacro.load_yaml(initial_positions_file)}"
+     use_tool_communication="$(arg use_tool_communication)"
+     tool_voltage="$(arg tool_voltage)"
+     tool_parity="$(arg tool_parity)"
+     tool_baud_rate="$(arg tool_baud_rate)"
+     tool_stop_bits="$(arg tool_stop_bits)"
+     tool_rx_idle_chars="$(arg tool_rx_idle_chars)"
+     tool_tx_idle_chars="$(arg tool_tx_idle_chars)"
+     tool_device_name="$(arg tool_device_name)"
+     tool_tcp_port="$(arg tool_tcp_port)"
+     robot_ip="$(arg robot_ip)"
+     script_filename="$(arg script_filename)"
+     output_recipe_filename="$(arg output_recipe_filename)"
+     input_recipe_filename="$(arg input_recipe_filename)"
+     reverse_ip="$(arg reverse_ip)"
+     script_command_port="$(arg script_command_port)"
+     reverse_port="$(arg reverse_port)"
+     script_sender_port="$(arg script_sender_port)"
+     trajectory_port="$(arg trajectory_port)"
+     >
+     <origin xyz="0 0 0" rpy="0 0 0" />         <!-- position robot in the world -->
+   </xacro:ur_robot>
 
-          <state_interface name="standard_analog_output_0"/>
-          <state_interface name="standard_analog_output_1"/>
+   <xacro:if value="$(arg sim_gazebo)">
+    <!-- Gazebo plugins -->
+    <gazebo reference="world">
+    </gazebo>
+    <gazebo>
+      <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+        <parameters>$(arg simulation_controllers)</parameters>
+      </plugin>
+    </gazebo>
+  </xacro:if>
 
-          <state_interface name="standard_analog_input_0"/>
-          <state_interface name="standard_analog_input_1"/>
+  <xacro:if value="$(arg sim_ignition)">
+    <!-- Gazebo plugins -->
+    <gazebo reference="world">
+    </gazebo>
+    <gazebo>
+      <plugin filename="libign_ros2_control-system.so" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+        <parameters>$(arg simulation_controllers)</parameters>
+        <controller_manager_node_name>$(arg tf_prefix)controller_manager</controller_manager_node_name>
+      </plugin>
+    </gazebo>
+  </xacro:if>
 
-          <state_interface name="analog_io_type_0"/>
-          <state_interface name="analog_io_type_1"/>
-          <state_interface name="analog_io_type_2"/>
-          <state_interface name="analog_io_type_3"/>
 
-          <state_interface name="tool_mode"/>
-          <state_interface name="tool_output_voltage"/>
-          <state_interface name="tool_output_current"/>
-          <state_interface name="tool_temperature"/>
+  <xacro:arg name="use_fake_hardware" default="true" />
+  <xacro:arg name="com_port" default="/dev/ttyUSB0" />
 
-          <state_interface name="tool_analog_input_0"/>
-          <state_interface name="tool_analog_input_1"/>
 
-          <state_interface name="tool_analog_input_type_0"/>
-          <state_interface name="tool_analog_input_type_1"/>
+  <!-- Import macros -->
+  <xacro:include filename="$(find ur_simulation_gz)/urdf/robotiq_gripper_macro.xacro" />
 
-          <state_interface name="robot_mode"/>
-          <state_interface name="robot_status_bit_0"/>
-          <state_interface name="robot_status_bit_1"/>
-          <state_interface name="robot_status_bit_2"/>
-          <state_interface name="robot_status_bit_3"/>
+  <xacro:robotiq_gripper name="RobotiqGripperHardwareInterface" prefix="" parent="tool0" use_fake_hardware="$(arg use_fake_hardware)" com_port="$(arg com_port)" sim_gazebo="$(arg sim_gazebo)">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </xacro:robotiq_gripper>
 
-          <state_interface name="safety_mode"/>
-          <state_interface name="safety_status_bit_0"/>
-          <state_interface name="safety_status_bit_1"/>
-          <state_interface name="safety_status_bit_2"/>
-          <state_interface name="safety_status_bit_3"/>
-          <state_interface name="safety_status_bit_4"/>
-          <state_interface name="safety_status_bit_5"/>
-          <state_interface name="safety_status_bit_6"/>
-          <state_interface name="safety_status_bit_7"/>
-          <state_interface name="safety_status_bit_8"/>
-          <state_interface name="safety_status_bit_9"/>
-          <state_interface name="safety_status_bit_10"/>
 
-          <state_interface name="program_running"/>
-        </gpio>
+  <!-- Base -->
+  <link name="bot_base_link">
+    <visual>
+      <origin xyz="0 0 0.05" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.2"/>
+      </geometry>
+      <material name="dark_gray">
+        <color rgba="0.2 0.2 0.2 1"/>
+      </material>
+    </visual>
+    <!--<collision>
+      <origin xyz="0 0 0.05" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.2"/>
+      </geometry>
+    </collision>-->
+  </link>
 
-        <gpio name="${tf_prefix}payload">
-          <command_interface name="mass"/>
-          <command_interface name="cog.x"/>
-          <command_interface name="cog.y"/>
-          <command_interface name="cog.z"/>
-          <command_interface name="payload_async_success"/>
-        </gpio>
+  <joint name="robot_to_turtlebot_base" type="fixed">
+    <parent link="bot_base_link"/>
+    <child link="base_link"/>  <!-- Ur5 Base -->
+    <origin xyz="0 0 0.1" rpy="0 0 0"/> 
+  </joint>
 
-        <gpio name="${tf_prefix}resend_robot_program">
-          <command_interface name="resend_robot_program_cmd"/>
-          <command_interface name="resend_robot_program_async_success"/>
-        </gpio>
+  <!-- Tower -->
+  <link name="tower_link">
+    <visual>
+      <origin xyz="0 0 0.2" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.04 0.1 1.2"/>
+      </geometry>
+      <material name="gray">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+    </visual>
+    <!--<collision>
+      <origin xyz="0 0 0.2" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.04 0.1 1.2"/>
+      </geometry>
+    </collision> -->
+  </link>
 
-        <gpio name="${tf_prefix}hand_back_control">
-          <command_interface name="hand_back_control_cmd"/>
-          <command_interface name="hand_back_control_async_success"/>
-        </gpio>
+  <joint name="pole_to_base" type="fixed">
+    <parent link="bot_base_link"/>
+    <child link="tower_link"/>
+    <origin xyz="-0.12 0 0.5" rpy="0 0 0"/>
+  </joint>
 
-        <gpio name="${tf_prefix}zero_ftsensor">
-          <command_interface name="zero_ftsensor_cmd"/>
-          <command_interface name="zero_ftsensor_async_success"/>
-        </gpio>
+  <!-- Camera -->
+  <link name="camera_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.06 0.03 0.02"/> 
+      </geometry>
+      <material name="dark_gray">
+        <color rgba="0.2 0.2 0.2 1"/>
+      </material>
+    </visual>
+    <!--<collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.06 0.03 0.02"/>
+      </geometry>
+    </collision>-->
+  </link>
 
-        <gpio name="${tf_prefix}freedrive_mode">
-          <command_interface name="async_success"/>
-          <command_interface name="enable"/>
-          <command_interface name="abort"/>
-        </gpio>
+  <joint name="camera_on_pole" type="fixed">
+    <parent link="tower_link"/>
+    <child link="camera_link"/>
+    <origin xyz="0.04 0 0.7" rpy="0 0 0"/>
+  </joint>
 
-        <gpio name="${tf_prefix}tool_contact">
-          <command_interface name="tool_contact_set_state"/>
-          <state_interface name="tool_contact_result"/>
-          <state_interface name="tool_contact_state"/>
-        </gpio>
+  <!-- Table -->
+    <link name="table_link">
+    <!-- Tischplatte -->
+    <visual>
+      <origin xyz="0 0 0.47" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.67 1.0 0.033"/>
+      </geometry>
+      <material name="brown">
+        <color rgba="0.55 0.27 0.07 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.47" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.67 1.0 0.033"/>
+      </geometry>
+    </collision>
 
-        <gpio name="${tf_prefix}system_interface">
-          <state_interface name="initialized"/>
-        </gpio>
+    <!-- Tischbeine -->
+    <visual>
+      <origin xyz="0.285 0.45 0.23" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.033 0.033 0.47"/>
+      </geometry>
+      <material name="brown"/>
+    </visual>
+    <collision>
+      <origin xyz="0.285 0.45 0.23" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.033 0.033 0.47"/>
+      </geometry>
+    </collision>
 
-        <gpio name="${tf_prefix}force_mode">
-        <command_interface name="task_frame_x"/>
-        <command_interface name="task_frame_y"/>
-        <command_interface name="task_frame_z"/>
-        <command_interface name="task_frame_rx"/>
-        <command_interface name="task_frame_ry"/>
-        <command_interface name="task_frame_rz"/>
-        <command_interface name="selection_vector_x"/>
-        <command_interface name="selection_vector_y"/>
-        <command_interface name="selection_vector_z"/>
-        <command_interface name="selection_vector_rx"/>
-        <command_interface name="selection_vector_ry"/>
-        <command_interface name="selection_vector_rz"/>
-        <command_interface name="wrench_x"/>
-        <command_interface name="wrench_y"/>
-        <command_interface name="wrench_z"/>
-        <command_interface name="wrench_rx"/>
-        <command_interface name="wrench_ry"/>
-        <command_interface name="wrench_rz"/>
-        <command_interface name="limits_x"/>
-        <command_interface name="limits_y"/>
-        <command_interface name="limits_z"/>
-        <command_interface name="limits_rx"/>
-        <command_interface name="limits_ry"/>
-        <command_interface name="limits_rz"/>
-        <command_interface name="type"/>
-        <command_interface name="damping"/>
-        <command_interface name="gain_scaling"/>
-        <command_interface name="disable_cmd"/>
-        <command_interface name="force_mode_async_success"/>
-      </gpio>
+    <visual>
+      <origin xyz="-0.285 0.45 0.23" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.033 0.033 0.47"/>
+      </geometry>
+      <material name="brown"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.285 0.45 0.23" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.033 0.033 0.47"/>
+      </geometry>
+    </collision>
 
-      <gpio name="${tf_prefix}trajectory_passthrough">
-        <command_interface name="setpoint_positions_0"/>
-        <command_interface name="setpoint_positions_1"/>
-        <command_interface name="setpoint_positions_2"/>
-        <command_interface name="setpoint_positions_3"/>
-        <command_interface name="setpoint_positions_4"/>
-        <command_interface name="setpoint_positions_5"/>
-        <command_interface name="setpoint_velocities_0"/>
-        <command_interface name="setpoint_velocities_1"/>
-        <command_interface name="setpoint_velocities_2"/>
-        <command_interface name="setpoint_velocities_3"/>
-        <command_interface name="setpoint_velocities_4"/>
-        <command_interface name="setpoint_velocities_5"/>
-        <command_interface name="setpoint_accelerations_0"/>
-        <command_interface name="setpoint_accelerations_1"/>
-        <command_interface name="setpoint_accelerations_2"/>
-        <command_interface name="setpoint_accelerations_3"/>
-        <command_interface name="setpoint_accelerations_4"/>
-        <command_interface name="setpoint_accelerations_5"/>
-        <command_interface name="transfer_state"/>
-        <command_interface name="time_from_start"/>
-        <command_interface name="abort"/>
-      </gpio>
+    <visual>
+      <origin xyz="0.285 -0.45 0.23" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.033 0.033 0.47"/>
+      </geometry>
+      <material name="brown"/>
+    </visual>
+    <collision>
+      <origin xyz="0.285 -0.45 0.23" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.033 0.033 0.47"/>
+      </geometry>
+    </collision>
 
-        <gpio name="${tf_prefix}get_robot_software_version">
-          <state_interface name="get_version_major"/>
-          <state_interface name="get_version_minor"/>
-          <state_interface name="get_version_build"/>
-          <state_interface name="get_version_bugfix"/>
-        </gpio>
-      </xacro:unless>
+    <visual>
+      <origin xyz="-0.285 -0.45 0.23" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.033 0.033 0.47"/>
+      </geometry>
+      <material name="brown"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.285 -0.45 0.23" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.033 0.033 0.47"/>
+      </geometry>
+    </collision>
+  </link>
 
-    </ros2_control>
-
-  </xacro:macro>
+  <joint name="table_to_base" type="fixed">
+    <parent link="bot_base_link"/>  <!-- Hier geändert von base_link zu bot_base_link -->
+    <child link="table_link"/>
+    <origin xyz="0.8 0 0" rpy="0 0 0"/> <!-- 0.8m vor dem Roboter, auf Bodenhöhe -->
+  </joint>
 
 </robot>

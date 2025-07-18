@@ -41,8 +41,7 @@
    <xacro:arg name="tool_tx_idle_chars" default="3.5" />
    <xacro:arg name="tool_device_name" default="/tmp/ttyUR" />
    <xacro:arg name="tool_tcp_port" default="54321" />
-
-     <!-- Simulation parameters -->
+   <!-- Simulation parameters -->
    <xacro:arg name="use_fake_hardware" default="false" />
    <xacro:arg name="fake_sensor_commands" default="false" />
    <xacro:arg name="sim_gazebo" default="true" />
@@ -77,12 +76,12 @@
            <color rgba="1 1 1 0.5"/>
          </material>
        </visual>
-       <!--<collision>
+       <collision>
          <origin rpy="0 0 0" xyz="0 0 0"/>
          <geometry>
            <box size="5 5 0"/>
          </geometry>
-       </collision>-->
+       </collision>
      </link>
 
      <joint name="ground_plane_joint" type="fixed">
@@ -180,12 +179,12 @@
         <color rgba="0.2 0.2 0.2 1"/>
       </material>
     </visual>
-    <!--<collision>
+    <collision>
       <origin xyz="0 0 0.05" rpy="0 0 0"/>
       <geometry>
         <cylinder length="0.1" radius="0.2"/>
       </geometry>
-    </collision>-->
+    </collision>
   </link>
 
   <joint name="robot_to_turtlebot_base" type="fixed">
@@ -199,24 +198,24 @@
     <visual>
       <origin xyz="0 0 0.2" rpy="0 0 0"/>
       <geometry>
-        <box size="0.04 0.1 1.2"/>
+        <box size="0.04 0.1 1.0"/>
       </geometry>
       <material name="gray">
         <color rgba="0.5 0.5 0.5 1"/>
       </material>
     </visual>
-    <!--<collision>
+    <collision>
       <origin xyz="0 0 0.2" rpy="0 0 0"/>
       <geometry>
-        <box size="0.04 0.1 1.2"/>
+        <box size="0.04 0.1 1.0"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
 
   <joint name="pole_to_base" type="fixed">
     <parent link="bot_base_link"/>
     <child link="tower_link"/>
-    <origin xyz="-0.12 0 0.5" rpy="0 0 0"/>
+    <origin xyz="-0.12 0 0.4" rpy="0 0 0"/>
   </joint>
 
   <!-- Camera -->
@@ -224,24 +223,24 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="0.06 0.03 0.02"/> 
+        <box size="0.04 0.07 0.02"/> 
       </geometry>
       <material name="dark_gray">
         <color rgba="0.2 0.2 0.2 1"/>
       </material>
     </visual>
-    <!--<collision>
+    <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <box size="0.06 0.03 0.02"/>
       </geometry>
-    </collision>-->
+    </collision>
   </link>
 
   <joint name="camera_on_pole" type="fixed">
     <parent link="tower_link"/>
     <child link="camera_link"/>
-    <origin xyz="0.04 0 0.7" rpy="0 0 0"/>
+    <origin xyz="0.04 0 0.5" rpy="0 0 0"/>
   </joint>
 
   <!-- Table -->
@@ -322,9 +321,9 @@
   </link>
 
   <joint name="table_to_base" type="fixed">
-    <parent link="bot_base_link"/>  <!-- Hier geändert von base_link zu bot_base_link -->
+    <parent link="bot_base_link"/>
     <child link="table_link"/>
-    <origin xyz="0.8 0 0" rpy="0 0 0"/> <!-- 0.8m vor dem Roboter, auf Bodenhöhe -->
+    <origin xyz="0.8 0 0" rpy="0 0 0"/>
   </joint>
 
 </robot>
