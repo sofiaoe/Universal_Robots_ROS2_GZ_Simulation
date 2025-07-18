@@ -60,6 +60,12 @@
    <!-- create link fixed to the "world" -->
    <link name="world" />
 
+   <joint name="world_to_bot_base" type="fixed">
+    <parent link="world"/>
+    <child link="bot_base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
    <xacro:if value="${is_sim_gazebo or is_sim_ignition}">
      <link name="ground_plane">
        <visual>
@@ -71,12 +77,12 @@
            <color rgba="1 1 1 0.5"/>
          </material>
        </visual>
-       <collision>
+       <!--<collision>
          <origin rpy="0 0 0" xyz="0 0 0"/>
          <geometry>
            <box size="5 5 0"/>
          </geometry>
-       </collision>
+       </collision>-->
      </link>
 
      <joint name="ground_plane_joint" type="fixed">
@@ -124,7 +130,7 @@
      script_sender_port="$(arg script_sender_port)"
      trajectory_port="$(arg trajectory_port)"
      >
-     <origin xyz="0 0 0.8" rpy="0 0 0" />          <!-- position robot in the world -->
+     <origin xyz="0 0 0" rpy="0 0 0" />         <!-- position robot in the world -->
    </xacro:ur_robot>
 
    <xacro:if value="$(arg sim_gazebo)">
@@ -155,12 +161,170 @@
   <xacro:arg name="com_port" default="/dev/ttyUSB0" />
 
 
-
   <!-- Import macros -->
   <xacro:include filename="$(find ur_simulation_gz)/urdf/robotiq_gripper_macro.xacro" />
 
   <xacro:robotiq_gripper name="RobotiqGripperHardwareInterface" prefix="" parent="tool0" use_fake_hardware="$(arg use_fake_hardware)" com_port="$(arg com_port)" sim_gazebo="$(arg sim_gazebo)">
     <origin xyz="0 0 0" rpy="0 0 0" />
   </xacro:robotiq_gripper>
+
+
+  <!-- Base -->
+  <link name="bot_base_link">
+    <visual>
+      <origin xyz="0 0 0.05" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.2"/>
+      </geometry>
+      <material name="dark_gray">
+        <color rgba="0.2 0.2 0.2 1"/>
+      </material>
+    </visual>
+    <!--<collision>
+      <origin xyz="0 0 0.05" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.2"/>
+      </geometry>
+    </collision>-->
+  </link>
+
+  <joint name="robot_to_turtlebot_base" type="fixed">
+    <parent link="bot_base_link"/>
+    <child link="base_link"/>  <!-- Ur5 Base -->
+    <origin xyz="0 0 0.1" rpy="0 0 0"/> 
+  </joint>
+
+  <!-- Tower -->
+  <link name="tower_link">
+    <visual>
+      <origin xyz="0 0 0.2" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.04 0.1 1.2"/>
+      </geometry>
+      <material name="gray">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+    </visual>
+    <!--<collision>
+      <origin xyz="0 0 0.2" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.04 0.1 1.2"/>
+      </geometry>
+    </collision> -->
+  </link>
+
+  <joint name="pole_to_base" type="fixed">
+    <parent link="bot_base_link"/>
+    <child link="tower_link"/>
+    <origin xyz="-0.12 0 0.5" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Camera -->
+  <link name="camera_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.06 0.03 0.02"/> 
+      </geometry>
+      <material name="dark_gray">
+        <color rgba="0.2 0.2 0.2 1"/>
+      </material>
+    </visual>
+    <!--<collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.06 0.03 0.02"/>
+      </geometry>
+    </collision>-->
+  </link>
+
+  <joint name="camera_on_pole" type="fixed">
+    <parent link="tower_link"/>
+    <child link="camera_link"/>
+    <origin xyz="0.04 0 0.7" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Table -->
+    <link name="table_link">
+    <!-- Tischplatte -->
+    <visual>
+      <origin xyz="0 0 0.47" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.67 1.0 0.033"/>
+      </geometry>
+      <material name="brown">
+        <color rgba="0.55 0.27 0.07 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.47" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.67 1.0 0.033"/>
+      </geometry>
+    </collision>
+
+    <!-- Tischbeine -->
+    <visual>
+      <origin xyz="0.285 0.45 0.23" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.033 0.033 0.47"/>
+      </geometry>
+      <material name="brown"/>
+    </visual>
+    <collision>
+      <origin xyz="0.285 0.45 0.23" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.033 0.033 0.47"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="-0.285 0.45 0.23" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.033 0.033 0.47"/>
+      </geometry>
+      <material name="brown"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.285 0.45 0.23" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.033 0.033 0.47"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0.285 -0.45 0.23" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.033 0.033 0.47"/>
+      </geometry>
+      <material name="brown"/>
+    </visual>
+    <collision>
+      <origin xyz="0.285 -0.45 0.23" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.033 0.033 0.47"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="-0.285 -0.45 0.23" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.033 0.033 0.47"/>
+      </geometry>
+      <material name="brown"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.285 -0.45 0.23" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.033 0.033 0.47"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="table_to_base" type="fixed">
+    <parent link="bot_base_link"/>  <!-- Hier geändert von base_link zu bot_base_link -->
+    <child link="table_link"/>
+    <origin xyz="0.8 0 0" rpy="0 0 0"/> <!-- 0.8m vor dem Roboter, auf Bodenhöhe -->
+  </joint>
 
 </robot>

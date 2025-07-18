@@ -47,7 +47,7 @@ def launch_setup(context, *args, **kwargs):
     ur_control_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
-                [FindPackageShare("ur_simulation_gz"), "launch", "ur_sim_control.launch.py"]
+                [FindPackageShare("ur_simulation_gz"), "launch", "view_ur5_gripper.launch.py"]
             )
         ),
         launch_arguments={
@@ -121,7 +121,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "description_file",
             default_value=PathJoinSubstitution(
-                [FindPackageShare("ur_simulation_gz"), "urdf", "ur_gz.urdf.xacro"]
+                [FindPackageShare("ur_simulation_gz"), "urdf", "ur5_gripper.urdf.xacro"]
             ),
             description="URDF/XACRO description file (absolute path) with the robot.",
         )
